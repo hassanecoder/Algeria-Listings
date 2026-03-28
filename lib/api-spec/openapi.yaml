@@ -1,22 +1,26 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: ImmoAlgérie Real Estate API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: properties
+    description: Property listings
+  - name: agents
+    description: Real estate agents
+  - name: wilayas
+    description: Algerian wilayas/regions
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +28,196 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /properties:
+    get:
+      operationId: listProperties
+      tags: [properties]
+      summary: List all properties with optional filters
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [sale, rent, commercial]
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [apartment, villa, house, studio, land, commercial, office]
+        - name: wilaya
+          in: query
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+        - name: minArea
+          in: query
+          schema:
+            type: number
+        - name: maxArea
+          in: query
+          schema:
+            type: number
+        - name: rooms
+          in: query
+          schema:
+            type: number
+        - name: featured
+          in: query
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: number
+        - name: offset
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of properties
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertyListResponse"
+
+  /properties/{id}:
+    get:
+      operationId: getProperty
+      tags: [properties]
+      summary: Get a property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Property details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Property"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /properties/featured:
+    get:
+      operationId: getFeaturedProperties
+      tags: [properties]
+      summary: Get featured properties
+      responses:
+        "200":
+          description: Featured properties
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertyListResponse"
+
+  /agents:
+    get:
+      operationId: listAgents
+      tags: [agents]
+      summary: List all agents
+      responses:
+        "200":
+          description: List of agents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Agent"
+
+  /agents/{id}:
+    get:
+      operationId: getAgent
+      tags: [agents]
+      summary: Get an agent by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Agent details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Agent"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /wilayas:
+    get:
+      operationId: listWilayas
+      tags: [wilayas]
+      summary: List all Algerian wilayas with stats
+      responses:
+        "200":
+          description: List of wilayas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Wilaya"
+
+  /inquiries:
+    post:
+      operationId: createInquiry
+      tags: [properties]
+      summary: Submit a property inquiry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InquiryInput"
+      responses:
+        "201":
+          description: Inquiry created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InquiryResponse"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [properties]
+      summary: Get market statistics
+      responses:
+        "200":
+          description: Market stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +228,262 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
+
+    Property:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        type:
+          type: string
+          enum: [sale, rent, commercial]
+        category:
+          type: string
+          enum: [apartment, villa, house, studio, land, commercial, office]
+        price:
+          type: number
+        priceUnit:
+          type: string
+          enum: [DZD, EUR]
+        area:
+          type: number
+        rooms:
+          type: number
+        bedrooms:
+          type: number
+        bathrooms:
+          type: number
+        floor:
+          type: number
+        totalFloors:
+          type: number
+        wilaya:
+          type: string
+        commune:
+          type: string
+        address:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        images:
+          type: array
+          items:
+            type: string
+        amenities:
+          type: array
+          items:
+            type: string
+        featured:
+          type: boolean
+        available:
+          type: boolean
+        yearBuilt:
+          type: number
+        agentId:
+          type: number
+        agent:
+          $ref: "#/components/schemas/Agent"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - type
+        - category
+        - price
+        - priceUnit
+        - area
+        - wilaya
+        - commune
+        - images
+        - amenities
+        - featured
+        - available
+
+    PropertyListResponse:
+      type: object
+      properties:
+        properties:
+          type: array
+          items:
+            $ref: "#/components/schemas/Property"
+        total:
+          type: number
+        limit:
+          type: number
+        offset:
+          type: number
+      required:
+        - properties
+        - total
+        - limit
+        - offset
+
+    Agent:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        photo:
+          type: string
+        agency:
+          type: string
+        wilaya:
+          type: string
+        bio:
+          type: string
+        rating:
+          type: number
+        reviewCount:
+          type: number
+        listingCount:
+          type: number
+        yearsExperience:
+          type: number
+        languages:
+          type: array
+          items:
+            type: string
+        verified:
+          type: boolean
+      required:
+        - id
+        - name
+        - phone
+        - agency
+        - wilaya
+        - rating
+        - reviewCount
+        - listingCount
+        - verified
+
+    Wilaya:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        nameAr:
+          type: string
+        code:
+          type: number
+        region:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        propertyCount:
+          type: number
+        avgPriceSale:
+          type: number
+        avgPriceRent:
+          type: number
+        population:
+          type: string
+        highlights:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - name
+        - nameAr
+        - code
+        - region
+        - propertyCount
+
+    InquiryInput:
+      type: object
+      properties:
+        propertyId:
+          type: number
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        message:
+          type: string
+        inquiryType:
+          type: string
+          enum: [visit, info, offer]
+      required:
+        - propertyId
+        - name
+        - phone
+        - message
+        - inquiryType
+
+    InquiryResponse:
+      type: object
+      properties:
+        id:
+          type: number
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - id
+        - success
+        - message
+
+    MarketStats:
+      type: object
+      properties:
+        totalListings:
+          type: number
+        forSale:
+          type: number
+        forRent:
+          type: number
+        commercial:
+          type: number
+        avgPriceSale:
+          type: number
+        avgPriceRent:
+          type: number
+        totalAgents:
+          type: number
+        totalWilayas:
+          type: number
+      required:
+        - totalListings
+        - forSale
+        - forRent
+        - commercial
+        - avgPriceSale
+        - avgPriceRent
+        - totalAgents
+        - totalWilayas

@@ -1,0 +1,19 @@
+packages:
+  "framer-motion": "For page transitions and smooth UI animations"
+  "react-hook-form": "For robust form handling in contact/inquiry forms"
+  "@hookform/resolvers": "For Zod validation integration with react-hook-form"
+
+images:
+  - path: "artifacts/immo-dz/public/images/hero-algiers.png"
+    description: "A beautiful, photorealistic wide shot of Algiers bay at sunset, showing modern white buildings and the Mediterranean sea. High end real estate vibe, soft warm lighting."
+    aspect_ratio: "16:9"
+  - path: "artifacts/immo-dz/public/images/pattern-bg.png"
+    description: "A very subtle, elegant geometric arabesque pattern in very light gray/off-white colors. High contrast, clean, minimalist."
+    aspect_ratio: "16:9"
+  - path: "artifacts/immo-dz/public/images/about-hero.png"
+    description: "Inside a luxurious, modern Algerian villa with traditional architectural touches. Sun streaming through large windows, bright and airy."
+    aspect_ratio: "16:9"
+
+notes:
+  - Using generated API hooks from @workspace/api-client-react
+  - Assuming prices are raw numbers and will be formatted on frontend
