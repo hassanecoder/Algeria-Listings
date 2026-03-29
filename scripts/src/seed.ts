@@ -1020,10 +1020,22 @@ const propertiesSeed = [
 ];
 
 async function seed() {
+  const seedMode = process.env.SEED_MODE === "bootstrap" ? "bootstrap" : "reset";
+  console.log(`Seeding database in ${seedMode} mode...`);
   console.log("Seeding agents...");
-  // Clear existing data
-  await db.delete(propertiesTable);
-  await db.delete(agentsTable);
+
+  if (seedMode === "bootstrap") {
+    const existing = await db.select().from(propertiesTable).limit(1);
+    if (existing.length > 0) {
+      console.log("Bootstrap seed skipped; properties already present");
+      return;
+    }
+  }
+
+  if (seedMode === "reset") {
+    await db.delete(propertiesTable);
+    await db.delete(agentsTable);
+  }
 
   const insertedAgents = await db.insert(agentsTable).values(agents).returning();
   console.log(`Inserted ${insertedAgents.length} agents`);
